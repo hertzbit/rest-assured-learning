@@ -15,11 +15,15 @@ public class GettingResponseBodyUsingJsonPath {
 		String responseBody = 
 		
 		given()
+			  .log()
+			  .all()
 			  .headers("Content-Type", "application/json")
 			  .body(UserAPI.getPOSTRequestBody()).
 		when()
 			  .post("users").
 		then()
+			  .log()
+			  .all()
 		      .assertThat()
 		      .statusCode(201)
 		      .extract()

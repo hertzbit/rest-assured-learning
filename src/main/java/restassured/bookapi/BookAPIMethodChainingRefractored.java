@@ -3,19 +3,25 @@ package restassured.bookapi;
 import static io.restassured.RestAssured.given;
 import static org.testng.Assert.assertEquals;
 
+import org.testng.ITestContext;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import io.restassured.RestAssured;
 import restassured.jsonutil.JsonPathUtil;
 import restassured.request.BookAPI;
 
-public class BookAPIMethodChaining {
+public class BookAPIMethodChainingRefractored {
 	
-	@Test
-	public void testBookAPI () {
+	@BeforeTest
+	public void initializeTests() {
+
 		RestAssured.baseURI = "http://localhost:8088/api/";
+	}
+	
+	@Test (priority = 1)
+	public void testBookAPIPOST(ITestContext bookApiContext) {
 		
-		//POST
 		String responseBodyPOSTString =
 
 		given()
@@ -37,8 +43,13 @@ public class BookAPIMethodChaining {
 		String createdBookId = JsonPathUtil.getRequestedKeyFromResponse(responseBodyPOSTString, 
 				"bookId");
 		System.out.println(createdBookId);
+		bookApiContext.setAttribute("bookId", createdBookId);
+	}
+	
+	@Test (priority = 2)
+	public void testBookAPIPUT(ITestContext bookApiContext) {
 		
-		//PUT
+		String createdBookId = String.valueOf(bookApiContext.getAttribute("bookId"));
 		
 		String putResponse = 
 		given()
@@ -58,10 +69,18 @@ public class BookAPIMethodChaining {
 			.body()
 			.asString();
 		
-		String updatedBookId = JsonPathUtil.getRequestedKeyFromResponse(putResponse, 
+		String newBookId = JsonPathUtil.getRequestedKeyFromResponse(putResponse, 
 				"bookId");
 		
-		//GET
+		//bookApiContext.setAttribute("newBookId", newBookId);
+		bookApiContext.setAttribute("bookId", newBookId);
+	}
+	
+	@Test (priority = 3)
+	public void testBookAPIGET(ITestContext bookApiContext) {
+	
+		String updatedBookId = String.valueOf(bookApiContext.getAttribute("newBookId"));
+		
 		String responseForGETRequest = 
 		given()
 			.log()
@@ -83,12 +102,16 @@ public class BookAPIMethodChaining {
 		String actualBookID = JsonPathUtil.getRequestedKeyFromResponse(responseForGETRequest,
 									"bookId");
 		assertEquals(actualBookID, expectedBookID);
+	}
+	
+	@Test (priority = 4) 
+	public void testBookAPIDELETE (ITestContext bookApiContext) {
 
-		// DELETE
+		String bookID = String.valueOf(bookApiContext.getAttribute("newBookId"));
 		given()
 			.log()
 			.all()
-			.pathParam("bookId", updatedBookId).
+			.pathParam("bookId", bookID).
 		when()
 			.delete("books/{bookId}").
 		then()
@@ -96,12 +119,17 @@ public class BookAPIMethodChaining {
 			.all()
 			.assertThat()
 			.statusCode(204);
-
-		// GET
+	
+	}
+	
+	@Test (priority = 5) 
+	public void testBookAPIGETAfterDELETE (ITestContext bookApiContext) {
+		
+		String bookID = String.valueOf(bookApiContext.getAttribute("newBookId"));
 		given()
 			.log()
 			.all()
-			.pathParam("bookId", updatedBookId).
+			.pathParam("bookId", bookID).
 		when()
 			.get("books/{bookId}").
 		then()

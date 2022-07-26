@@ -14,6 +14,7 @@ public class BookAPIPostUsingJSONArgument {
 		
 		RestAssured.baseURI = "http://localhost:8088/api/";
 
+		//ISBN+YP -> ISBNCK12342022
 		// POST Request
 		given()
 			.log()
@@ -29,6 +30,7 @@ public class BookAPIPostUsingJSONArgument {
 			.assertThat()
 			.statusCode(201);
 		
+		//Apple1234562022
 		//PUT Request
 		given()
 			.log()

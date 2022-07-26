@@ -20,21 +20,20 @@ public class BookAPIPostUsingStaticJSON {
 		Path jsonFilePath = Paths.get("/Users/chetankrishna/eclipse-workspace/restassured/CreateBook.json");
 		byte[] jsonFileBytes = Files.readAllBytes(jsonFilePath);
 		String jsonFileRequestBody = new String(jsonFileBytes);
+		System.out.println(jsonFileRequestBody);
 		
 		// POST Request
 		given()
 			.log()
 			.all()
 			.headers("Content-Type", "application/json")
-			.body(jsonFileRequestBody).
+			.body(jsonFileBytes).
 		when()
 			.post("books").
 		then()
 			.log()
 			.all()
 			.assertThat()
-			.statusCode(201)
-			.extract()
-			.asString();
+			.statusCode(201);
 	}
 }

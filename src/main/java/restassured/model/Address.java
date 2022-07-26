@@ -4,7 +4,9 @@ package restassured.model;
 import java.io.Serializable;
 
 public class Address implements Serializable {
-    private String houseNumber;
+	
+    private static final long serialVersionUID = -7339046399271719825L;
+	private String houseNumber;
     private String street;
     private String city;
     private String state;
